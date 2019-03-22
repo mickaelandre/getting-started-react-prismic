@@ -1,31 +1,33 @@
 const functions = require('firebase-functions');
-//const fetch = require("node-fetch");
+
 
 // // Create and Deploy Your First Cloud Functions
 // // https://firebase.google.com/docs/functions/write-firebase-functions
 
+const admin = require('firebase-admin');
+admin.initializeApp(functions.config().firebase);
 
-exports.helloWorld = functions.https.onRequest(async (request, response) => {
+
+exports.helloWorld = functions.https.onRequest( async (request, response) => {
     console.log("my masterRef: " + request.body["masterRef"]);
 
+    const db = admin.firestore();
+    console.log("firestore value:" + db);
 
-    /*
-    const param = {
-        method: 'GET',
-        mode: 'cors',
-        cache: 'default'
+    const FirestoreObject = {
+        "masterRef": request.body["masterRef"],
     };
 
-    try{
-        const res = await fetch("https://getting-started-react-prismic.prismic.io/api/v2/documents/search?ref=" + "XJOk1hAAAOfGXeFa",param);
-        //const res = await fetch("https://getting-started-react-prismic.prismic.io/api/v2/documents/search?ref=" + request.body["masterRef"],param);
-        const json = await res.json();
-        console.log("json : "+ json);
-    }catch(e){
-        console.log("error: " + e);
-    }
+    // set Data
+    db.collection('prismicWebHook').doc('ZtM38IhHFhlgXonX2NsW').set(FirestoreObject);
 
-    */
+    // get Data
+    try{
+        const snapshot = await db.collection('prismicWebHook').get();
+        snapshot.forEach((doc) => console.log(doc.id, '=>', doc.data()));
+    } catch(e){
+        console.log('error getting documents ', e);
+    }
 
     response.send("cloud function executed !");
 });
